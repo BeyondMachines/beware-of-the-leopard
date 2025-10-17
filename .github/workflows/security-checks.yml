@@ -2,10 +2,17 @@ name: Security Checks
 
 on:
   pull_request:
-    branches: [ main ]
+    branches: [ main, develop ]
   push:
-    branches: [ main ]
+    branches: [ main, develop ]
   workflow_dispatch:  # Allow manual runs
+
+# ============================================================================
+# SECURITY: Explicitly set minimal permissions (Principle of Least Privilege)
+# ============================================================================
+permissions:
+  contents: read       # Read repository contents
+  pull-requests: read  # Read PR metadata (needed for PR context)
 
 # Prevent multiple runs for same PR
 concurrency:
@@ -13,27 +20,29 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # ============================================================================
-  # JOB 1: Gitleaks - Secret Scanning
-  # ============================================================================
+  # ==========================================================================
+  # Gitleaks - Using Docker (no license required)
+  # ==========================================================================
   gitleaks:
-    name: Scan for Secrets (Gitleaks)
+    name: Gitleaks Secrets Scan
     runs-on: ubuntu-latest
-    
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Full history for better detection
+          fetch-depth: 0
       
       - name: Run Gitleaks
-        uses: gitleaks/gitleaks-action@v2
+        run: |
+          docker run -v ${PWD}:/path zricethezav/gitleaks:latest \
+            detect --source="/path" -v --no-git
+
 
   # ============================================================================
   # JOB 2: Semgrep - Code Security Analysis
   # ============================================================================
   semgrep:
-    name: Security Scan
+    name: Semgrep Security Scan
     runs-on: ubuntu-latest
     container:
       image: semgrep/semgrep
@@ -53,7 +62,7 @@ jobs:
   # JOB 3: Checkov - Infrastructure as Code Security
   # ============================================================================
   checkov:
-    name: Infrastructure Scan
+    name: Checkov Infrastructure Scan
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
