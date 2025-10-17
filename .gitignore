@@ -4,6 +4,8 @@ __pycache__/
 *$py.class
 
 # adding a comment
+# adding a second comment
+
 # C extensions
 *.so
 
