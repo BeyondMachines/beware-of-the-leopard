@@ -13,8 +13,8 @@ useDefault = true
 # =============================================================================
 # ALLOWLIST - For false positives only
 # =============================================================================
-[allowlist]
-description = "Allowlist certain files or patterns"
+# [allowlist]
+# description = "Allowlist certain files or patterns"
 
 # Ignore test fixtures and example files
 paths = [
