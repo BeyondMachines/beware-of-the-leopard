@@ -1,0 +1,112 @@
+# =============================================================================
+# Checkov Configuration - Minimal Example
+# =============================================================================
+# This file is OPTIONAL. Checkov works fine with defaults.
+# Only customize when you need to skip checks or adjust behavior.
+
+# Directories to scan (default: current directory)
+directory:
+  - .
+
+# Frameworks to check
+framework:
+  - dockerfile
+  - kubernetes
+  - terraform
+  - github_actions
+  - secrets
+
+# Output format (cli, json, junitxml, github_failed_only, sarif)
+output: cli
+
+# Compact output (less verbose)
+compact: true
+
+# =============================================================================
+# SKIP CHECKS - Only skip with documented justification
+# =============================================================================
+
+skip-check:
+  # Example: Skip Docker HEALTHCHECK in development environments
+  # - CKV_DOCKER_2  # HEALTHCHECK - we handle health checks in orchestration layer
+  
+  # Example: Skip specific Kubernetes checks if handled elsewhere
+  # - CKV_K8S_8     # CPU limits - handled by cluster defaults in dev
+  # - CKV_K8S_9     # CPU requests - handled by cluster defaults in dev
+  
+  # Example: Skip if using rootless containers
+  # - CKV_DOCKER_3  # USER directive - using rootless Docker runtime
+  
+  # Example: Skip GitHub Actions checks if intentional
+  # - CKV_GHA_1     # Unpinned actions - we trust official actions
+  
+  # IMPORTANT: Always document WHY a check is skipped!
+  # Format: CKV_FRAMEWORK_NUMBER  # Reason for skip
+
+# =============================================================================
+# SEVERITY SETTINGS
+# =============================================================================
+
+# Fail on these severity levels (default: all)
+# Options: CRITICAL, HIGH, MEDIUM, LOW
+# check: 
+#   - CRITICAL
+#   - HIGH
+
+# Soft fail mode (default: false)
+# If true, always exit 0 even if checks fail (useful for warnings only)
+soft-fail: false
+
+# Skip download of external modules (Terraform)
+# download-external-modules: false
+
+# =============================================================================
+# SPECIFIC FILE PATTERNS
+# =============================================================================
+
+# Skip specific files or directories
+# skip-path:
+#   - tests/fixtures/
+#   - docs/examples/
+
+# =============================================================================
+# CUSTOM POLICIES (Advanced)
+# =============================================================================
+
+# Path to custom policies directory
+# external-checks-dir:
+#   - ./custom-checkov-policies/
+
+# =============================================================================
+# EXAMPLE: Common checks you might want to skip in dev/test environments
+# =============================================================================
+
+# Development/Testing environment exceptions:
+# skip-check:
+#   - CKV_DOCKER_2   # HEALTHCHECK not needed in dev containers
+#   - CKV_DOCKER_3   # USER directive - using rootless runtime
+#   - CKV_K8S_8      # CPU limits - handled by namespace defaults
+#   - CKV_K8S_9      # CPU requests - handled by namespace defaults
+#   - CKV_K8S_11     # CPU limits on init containers - not applicable
+#   - CKV_K8S_12     # CPU requests on init containers - not applicable
+#   - CKV_K8S_20     # No privilege escalation - required for legacy app
+#   - CKV_K8S_22     # Read-only root filesystem - app writes to /tmp
+#   - CKV_K8S_23     # Admission controller - not in dev cluster
+#   - CKV_K8S_37     # Drop all capabilities - legacy app needs NET_ADMIN
+#   - CKV_K8S_43     # Image pull policy - latest ok in dev
+
+# Production environment (be much more restrictive):
+# skip-check:
+#   # ONLY skip with explicit security team approval
+#   # All exceptions must be documented in architecture docs
+
+# =============================================================================
+# NOTES
+# =============================================================================
+# - Start with NO skip-check entries
+# - Only add skips when:
+#   1. You understand WHY the check exists
+#   2. You have a valid architectural reason to skip
+#   3. You've documented the exception
+# - Review skips quarterly - can they be removed?
+# - Production configs should have minimal/zero skips

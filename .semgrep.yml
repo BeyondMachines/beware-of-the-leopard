@@ -1,0 +1,121 @@
+# =============================================================================
+# Semgrep Custom Rules - Minimal Example
+# =============================================================================
+# This file is OPTIONAL. Our workflow uses registry rules (p/security-audit).
+# Only add custom rules here for company-specific security patterns.
+
+rules:
+  # ===========================================================================
+  # Example 1: Enforce company security library
+  # ===========================================================================
+  
+  # - id: use-company-auth-library
+  #   patterns:
+  #     - pattern: |
+  #         import jwt
+  #   message: |
+  #     Don't use 'jwt' directly. Use our company auth library:
+  #     from company.auth import verify_token
+  #   severity: ERROR
+  #   languages: [python]
+  #   metadata:
+  #     category: security
+  
+  # ===========================================================================
+  # Example 2: Ban dangerous functions
+  # ===========================================================================
+  
+  # - id: no-eval-in-production
+  #   patterns:
+  #     - pattern-either:
+  #         - pattern: eval(...)
+  #         - pattern: exec(...)
+  #   message: |
+  #     Never use eval() or exec() - extreme security risk!
+  #     Reference: Security Policy Section "Dangerous Functions"
+  #   severity: ERROR
+  #   languages: [python, javascript]
+  
+  # ===========================================================================
+  # Example 3: Enforce input validation pattern
+  # ===========================================================================
+  
+  # - id: api-endpoint-missing-validation
+  #   patterns:
+  #     - pattern: |
+  #         @app.route(...)
+  #         def $FUNC(..., $PARAM, ...):
+  #           ...
+  #     - pattern-not: |
+  #         @app.route(...)
+  #         def $FUNC(..., $PARAM, ...):
+  #           ...
+  #           validate_input($PARAM)
+  #           ...
+  #   message: |
+  #     API endpoint must validate all parameters.
+  #     Add: validate_input() or use @validate_schema decorator
+  #   severity: WARNING
+  #   languages: [python]
+  
+  # ===========================================================================
+  # Example 4: Enforce secrets management
+  # ===========================================================================
+  
+  # - id: hardcoded-company-api-key
+  #   patterns:
+  #     - pattern-regex: ACME_API_KEY\s*=\s*["\'][^"\']+["\']
+  #   message: |
+  #     Hardcoded API key detected!
+  #     Use: ACME_API_KEY = os.environ.get('ACME_API_KEY')
+  #     Reference: Security Policy Section "Secrets Management"
+  #   severity: ERROR
+  #   languages: [python, javascript]
+  
+  # ===========================================================================
+  # Example 5: Ban insecure crypto (specific to your standards)
+  # ===========================================================================
+  
+  # - id: must-use-company-encryption
+  #   patterns:
+  #     - pattern-either:
+  #         - pattern: AES.new(...)
+  #         - pattern: crypto.createCipher(...)
+  #   message: |
+  #     Don't implement encryption directly. Use our company encryption library:
+  #     from company.crypto import encrypt, decrypt
+  #   severity: ERROR
+  #   languages: [python, javascript]
+  
+  # ===========================================================================
+  # Example 6: Enforce logging practices
+  # ===========================================================================
+  
+  # - id: no-print-in-production
+  #   patterns:
+  #     - pattern: print(...)
+  #     - pattern-not-inside: |
+  #         if __name__ == "__main__":
+  #           ...
+  #   message: |
+  #     Don't use print() in production code. Use proper logging:
+  #     import logging
+  #     logger = logging.getLogger(__name__)
+  #     logger.info(...)
+  #   severity: WARNING
+  #   languages: [python]
+  #   paths:
+  #     include:
+  #       - src/
+  #     exclude:
+  #       - tests/
+  #       - scripts/
+
+# =============================================================================
+# NOTES
+# =============================================================================
+# - Keep this file minimal - only add rules that enforce YOUR policies
+# - Registry rules (p/security-audit, p/owasp-top-ten) already cover common issues
+# - Test rules locally: semgrep --config .semgrep.yml
+# - Document the "why" in message field
+# - Use severity: ERROR for must-fix, WARNING for should-fix
