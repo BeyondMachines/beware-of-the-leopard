@@ -1,0 +1,20 @@
+# CODEOWNERS for beware-of-the-leopard
+# Security-critical files require review from designated code owners
+
+# Security-critical configuration files require Security Officer or Senior Dev approval
+.gitignore @spirovskib @ro-st-1
+.dockerignore @spirovskib @ro-st-1
+**/.gitignore @spirovskib @ro-st-1
+**/.dockerignore @spirovskib @ro-st-1
+
+# If these files don't exist yet, the rules still apply when they're created
+# Wildcards catch them in any directory
+
+# Additional critical files (optional)
+*.env.example @spirovskib @ro-st-1
+.env.* @spirovskib @ro-st-1
+Dockerfile @spirovskib @ro-st-1
+docker-compose*.yml @spirovskib @ro-st-1
+package.json@spirovskib @ro-st-1
+package-lock.json @spirovskib @ro-st-1
+requirements.txt @spirovskib @ro-st-1
