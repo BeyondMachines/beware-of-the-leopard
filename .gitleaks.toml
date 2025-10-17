@@ -1,0 +1,77 @@
+# =============================================================================
+# Gitleaks Configuration - Minimal Example
+# =============================================================================
+# This file is OPTIONAL. Gitleaks works fine without it.
+# Uncomment sections below as needed.
+
+title = "Gitleaks config for beware-of-the-leopard"
+
+# Use all default Gitleaks rules (recommended)
+[extend]
+useDefault = true
+
+# =============================================================================
+# ALLOWLIST - For false positives only
+# =============================================================================
+[allowlist]
+description = "Allowlist certain files or patterns"
+
+# Ignore test fixtures and example files
+paths = [
+  # Uncomment to ignore test files with dummy secrets:
+  # '''tests/fixtures/.*''',
+  # '''docs/examples/.*''',
+  # '''.*\.example$''',
+  
+  # Uncomment to ignore specific files:
+  # '''README.md''',
+  # '''docs/setup-guide.md''',
+]
+
+# Ignore specific non-secret patterns that look like secrets
+regexes = [
+  # Uncomment if you have placeholder values that trigger false positives:
+  # '''example-api-key-[a-zA-Z0-9]{32}''',
+  # '''test@example\.com''',
+  # '''YOUR_API_KEY_HERE''',
+  # '''xxx+''',  # Common placeholder
+]
+
+# Ignore specific git commits (use sparingly!)
+# Only use this for legacy secrets that have been rotated
+commits = [
+  # '''abc123def456789''',  # Commit with rotated secret
+]
+
+# =============================================================================
+# CUSTOM RULES - Add company-specific secret patterns
+# =============================================================================
+
+# Example: Detect your company's custom API key format
+# [[rules]]
+# id = "company-api-key"
+# description = "Acme Corp API keys"
+# regex = '''(?i)acme[_-]?api[_-]?key['\"]?\s*[:=]\s*['\"]?[A-Z0-9]{32}['\"]?'''
+# tags = ["key", "acme"]
+
+# Example: Detect internal service tokens
+# [[rules]]
+# id = "internal-service-token"
+# description = "Internal service authentication token"
+# regex = '''(?i)service[_-]?token['\"]?\s*[:=]\s*['\"]?IST_[a-zA-Z0-9]{40}['\"]?'''
+# tags = ["token", "internal"]
+
+# Example: Detect database connection strings
+# [[rules]]
+# id = "database-connection"
+# description = "Database connection string with embedded credentials"
+# regex = '''(?i)(mongodb|mysql|postgresql)://[^:]+:[^@]+@'''
+# tags = ["database", "credentials"]
+
+# =============================================================================
+# NOTES
+# =============================================================================
+# - Start without allowlists - only add when you get false positives
+# - Document WHY each allowlist entry exists
+# - Custom rules should match your company's specific secret formats
+# - Test regex patterns at https://regex101.com before adding
