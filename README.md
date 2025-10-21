@@ -51,6 +51,114 @@ Every pull request automatically runs three security scans:
 
 ## What Gets Blocked
 
+### Local Security Checks with Pre-Commit Hooks
+
+Before pushing code to GitHub, all security and code quality checks run **locally on your computer** to catch issues immediately.
+
+### First-Time Setup (5 minutes)
+
+1. **Install pre-commit** (one-time only)
+```bash
+pip install pre-commit
+```
+2. **Install the git hooks**
+```bash
+pre-commit install
+```
+
+That's it! Hooks are now active.
+
+### How It Works
+
+When you commit code:
+```bash
+git commit -m "your changes"
+```
+
+Pre-commit hooks run automatically and check for:
+- **Secrets** (API keys, passwords, tokens) via Gitleaks
+- **Code vulnerabilities** (SQL injection, weak crypto) via Semgrep
+- **Docker security** (base image, user creation, healthchecks) via Checkov
+- **Python security** (hardcoded credentials, weak methods) via Bandit
+- **Code formatting** (trailing whitespace, line endings)
+- **Code quality** (ESLint for JavaScript, Ruff for Python)
+
+### What Happens If Issues Are Found
+
+Most issues are **auto-fixed** (formatting, whitespace, etc.). For unfixed issues:
+
+```bash
+# See what went wrong
+git diff
+
+# Fix issues manually in your editor, then try again
+git add .
+git commit -m "your changes"
+```
+
+Once all checks pass, your commit succeeds.
+
+### Common Commands
+
+```bash
+# Test all hooks manually before committing
+pre-commit run --all-files
+
+# Test specific hook
+pre-commit run gitleaks --all-files
+
+# Update all hooks to latest versions
+pre-commit autoupdate
+
+# Skip hooks (emergency only - not recommended!)
+git commit --no-verify
+```
+
+### Example Workflow
+
+```bash
+# Make changes
+echo 'API_KEY = "sk_test_123"' > api.py
+
+# Try to commit
+git add api.py
+git commit -m "Add API integration"
+
+# Gitleaks blocks it (detects fake secret)
+# Gitleaks - Detect secrets...................Failed
+
+# Remove the hardcoded secret
+echo 'import os\nAPI_KEY = os.getenv("API_KEY")' > api.py
+
+# Try again
+git add api.py
+git commit -m "Add API integration"
+
+# All checks pass! Commit successful.
+git push origin feature/your-branch
+```
+
+### Troubleshooting
+
+**Pre-commit command not found?**
+- Reinstall: `pip install --upgrade pre-commit`
+- Restart your terminal
+
+**Hooks are slow on first run?**
+- First run downloads all tools (1-2 minutes)
+- Subsequent commits are much faster (5-15 seconds)
+
+**I committed something bad before installing hooks?**
+
+- You'll see failures in the PR and can fix before merging
+
+### Questions?
+
+If a hook blocks your commit and you're unsure why, check the error message. Most errors include links to documentation explaining the security issue and how to fix it.
+
+---
+
+
 ### This PR will be blocked:
 
 ```python

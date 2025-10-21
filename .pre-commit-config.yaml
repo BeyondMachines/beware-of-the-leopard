@@ -1,0 +1,157 @@
+repos:
+  # ====================
+  # SECRETS & SECURITY (GITLEAKS)
+  # ====================
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.28.0
+    hooks:
+      - id: gitleaks
+        name: Gitleaks - Detect secrets
+        description: Scans code for secrets, API keys, and credentials
+
+  # ====================
+  # SEMGREP - Pattern-based security scanning
+  # ====================
+  - repo: https://github.com/semgrep/semgrep
+    rev: v1.89.0
+    hooks:
+      - id: semgrep
+        name: Semgrep - Security patterns
+        description: Detects security issues and code patterns
+        args: ['--config=auto', '--error']
+        files: \.(py|js|jsx|ts|tsx|java|go|rb|php|c|cpp|cs)$
+
+  # ====================
+  # PYTHON SECURITY (BANDIT)
+  # ====================
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.8.6
+    hooks:
+      - id: bandit
+        name: Bandit - Python security
+        description: Scans Python code for common security issues
+        args: ['-r', '.']
+        exclude: '^tests/'
+
+  # ====================
+  # INFRASTRUCTURE AS CODE (CHECKOV)
+  # ====================
+  - repo: https://github.com/bridgecrewio/checkov
+    rev: 3.2.485
+    hooks:
+      - id: checkov
+        name: Checkov - Infrastructure scanning
+        description: Scans Terraform, CloudFormation, Kubernetes, and Dockerfiles
+        args: ['--framework', 'terraform,cloudformation,kubernetes,dockerfile']
+        files: \.(tf|tfvars|yaml|yml|json|dockerfile|Dockerfile)$
+        exclude: ^(tests/|examples/|\.terraform/)
+
+  # ====================
+  # BASIC FILE CHECKS
+  # ====================
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+        name: Trim trailing whitespace
+
+      - id: end-of-file-fixer
+        name: Fix end of file
+
+      - id: check-yaml
+        name: Check YAML syntax
+        args: ['--unsafe']
+
+      - id: check-json
+        name: Check JSON syntax
+
+      - id: check-toml
+        name: Check TOML syntax
+
+      - id: check-merge-conflict
+        name: Check for merge conflicts
+
+      - id: check-case-conflict
+        name: Check for case conflicts
+
+      - id: detect-private-key
+        name: Detect private keys
+
+      - id: mixed-line-ending
+        name: Fix mixed line endings
+        args: ['--fix=lf']
+
+  # ====================
+  # PYTHON LINTING & FORMATTING
+  # ====================
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.14.1
+    hooks:
+      - id: ruff
+        name: Ruff - Python linter
+        args: ['--fix', '--show-fixes']
+
+      - id: ruff-format
+        name: Ruff - Python formatter
+
+  # ====================
+  # JAVASCRIPT/TYPESCRIPT LINTING & FORMATTING
+  # ====================
+  - repo: https://github.com/pre-commit/mirrors-eslint
+    rev: v9.38.0
+    hooks:
+      - id: eslint
+        name: ESLint - JavaScript/TypeScript linter
+        files: \.(js|mjs|cjs|jsx|ts|tsx)$
+        additional_dependencies:
+          - 'eslint'
+          - 'eslint-config-airbnb'
+          - 'eslint-plugin-import'
+          - 'eslint-plugin-jsx-a11y'
+          - 'eslint-plugin-react'
+          - 'eslint-plugin-react-hooks'
+        args: ['--fix']
+
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v4.0.0-alpha.8
+    hooks:
+      - id: prettier
+        name: Prettier - Code formatter
+        files: \.(js|mjs|cjs|jsx|ts|tsx|css|md|yaml|yml)$
+
+  # ====================
+  # LOCAL HOOKS - CUSTOM SCRIPTS
+  # ====================
+  - repo: local
+    hooks:
+      - id: check-debug-statements
+        name: Check for debug statements
+        entry: bash -c 'if grep -r "console.log\|debugger\|pdb.set_trace\|breakpoint()" --include="*.py" --include="*.js" --include="*.ts" . 2>/dev/null | grep -v "node_modules" | grep -v ".venv"; then echo "Debug statements found!"; exit 1; fi'
+        language: system
+        files: \.(py|js|ts|jsx|tsx)$
+        description: Detects debug statements that should not be committed
+        pass_filenames: false
+
+# ====================
+# GLOBAL CONFIGURATION
+# ====================
+fail_fast: false
+exclude: |
+  (?x)^(
+    venv/|
+    \.venv/|
+    env/|
+    build/|
+    dist/|
+    \.eggs/|
+    .*\.egg-info/|
+    node_modules/|
+    \.git/|
+    \.next/|
+    __pycache__/|
+    \.pytest_cache/|
+    \.mypy_cache/
+  )$
+default_language_version:
+  python: python3.11
+  node: 18.0.0
