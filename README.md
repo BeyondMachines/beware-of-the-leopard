@@ -51,9 +51,11 @@ Every pull request automatically runs three security scans:
 
 ## What Gets Blocked
 
-### Local Security Checks with Pre-Commit Hooks
+---
 
-Before pushing code to GitHub, all security and code quality checks run **locally on your computer** to catch issues immediately.
+## Local Security Checks with Pre-Commit Hooks
+
+Before pushing code to GitHub, all security checks run **locally on your computer** to catch issues immediately.
 
 ### First-Time Setup (5 minutes)
 
@@ -61,11 +63,11 @@ Before pushing code to GitHub, all security and code quality checks run **locall
 ```bash
 pip install pre-commit
 ```
+
 2. **Install the git hooks**
 ```bash
 pre-commit install
 ```
-
 That's it! Hooks are now active.
 
 ### How It Works
@@ -77,21 +79,17 @@ git commit -m "your changes"
 
 Pre-commit hooks run automatically and check for:
 - **Secrets** (API keys, passwords, tokens) via Gitleaks
-- **Code vulnerabilities** (SQL injection, weak crypto) via Semgrep
-- **Docker security** (base image, user creation, healthchecks) via Checkov
-- **Python security** (hardcoded credentials, weak methods) via Bandit
-- **Code formatting** (trailing whitespace, line endings)
-- **Code quality** (ESLint for JavaScript, Ruff for Python)
+- **Code vulnerabilities** (SQL injection, XSS, weak crypto) via Semgrep
+- **Infrastructure security** (Dockerfiles, Kubernetes, Terraform, GitHub Actions) via Checkov
 
 ### What Happens If Issues Are Found
 
-Most issues are **auto-fixed** (formatting, whitespace, etc.). For unfixed issues:
-
+If security issues are detected, your commit will be blocked:
 ```bash
-# See what went wrong
-git diff
+# See what failed
+git status
 
-# Fix issues manually in your editor, then try again
+# Fix the security issue in your editor, then retry
 git add .
 git commit -m "your changes"
 ```
@@ -99,15 +97,14 @@ git commit -m "your changes"
 Once all checks pass, your commit succeeds.
 
 ### Common Commands
-
 ```bash
-# Test all hooks manually before committing
+# Test all hooks manually
 pre-commit run --all-files
 
 # Test specific hook
 pre-commit run gitleaks --all-files
 
-# Update all hooks to latest versions
+# Update hooks to latest versions
 pre-commit autoupdate
 
 # Skip hooks (emergency only - not recommended!)
@@ -115,7 +112,6 @@ git commit --no-verify
 ```
 
 ### Example Workflow
-
 ```bash
 # Make changes
 echo 'API_KEY = "sk_test_123"' > api.py
@@ -124,18 +120,16 @@ echo 'API_KEY = "sk_test_123"' > api.py
 git add api.py
 git commit -m "Add API integration"
 
-# Gitleaks blocks it (detects fake secret)
-# Gitleaks - Detect secrets...................Failed
+# Gitleaks blocks it (detects hardcoded secret)
 
-# Remove the hardcoded secret
+# Fix it
 echo 'import os\nAPI_KEY = os.getenv("API_KEY")' > api.py
 
-# Try again
+# Retry
 git add api.py
 git commit -m "Add API integration"
 
-# All checks pass! Commit successful.
-git push origin feature/your-branch
+#  All checks pass! Commit successful.
 ```
 
 ### Troubleshooting
@@ -149,15 +143,9 @@ git push origin feature/your-branch
 - Subsequent commits are much faster (5-15 seconds)
 
 **I committed something bad before installing hooks?**
-
-- You'll see failures in the PR and can fix before merging
-
-### Questions?
-
-If a hook blocks your commit and you're unsure why, check the error message. Most errors include links to documentation explaining the security issue and how to fix it.
+- The GitHub Actions will still catch it in your PR
 
 ---
-
 
 ### This PR will be blocked:
 
