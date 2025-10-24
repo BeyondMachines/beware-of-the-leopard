@@ -51,6 +51,102 @@ Every pull request automatically runs three security scans:
 
 ## What Gets Blocked
 
+---
+
+## Local Security Checks with Pre-Commit Hooks
+
+Before pushing code to GitHub, all security checks run **locally on your computer** to catch issues immediately.
+
+### First-Time Setup (5 minutes)
+
+1. **Install pre-commit** (one-time only)
+```bash
+pip install pre-commit
+```
+
+2. **Install the git hooks**
+```bash
+pre-commit install
+```
+That's it! Hooks are now active.
+
+### How It Works
+
+When you commit code:
+```bash
+git commit -m "your changes"
+```
+
+Pre-commit hooks run automatically and check for:
+- **Secrets** (API keys, passwords, tokens) via Gitleaks
+- **Code vulnerabilities** (SQL injection, XSS, weak crypto) via Semgrep
+- **Infrastructure security** (Dockerfiles, Kubernetes, Terraform, GitHub Actions) via Checkov
+
+### What Happens If Issues Are Found
+
+If security issues are detected, your commit will be blocked:
+```bash
+# See what failed
+git status
+
+# Fix the security issue in your editor, then retry
+git add .
+git commit -m "your changes"
+```
+
+Once all checks pass, your commit succeeds.
+
+### Common Commands
+```bash
+# Test all hooks manually
+pre-commit run --all-files
+
+# Test specific hook
+pre-commit run gitleaks --all-files
+
+# Update hooks to latest versions
+pre-commit autoupdate
+
+# Skip hooks (emergency only - not recommended!)
+git commit --no-verify
+```
+
+### Example Workflow
+```bash
+# Make changes
+echo 'API_KEY = "sk_test_123"' > api.py
+
+# Try to commit
+git add api.py
+git commit -m "Add API integration"
+
+# Gitleaks blocks it (detects hardcoded secret)
+
+# Fix it
+echo 'import os\nAPI_KEY = os.getenv("API_KEY")' > api.py
+
+# Retry
+git add api.py
+git commit -m "Add API integration"
+
+#  All checks pass! Commit successful.
+```
+
+### Troubleshooting
+
+**Pre-commit command not found?**
+- Reinstall: `pip install --upgrade pre-commit`
+- Restart your terminal
+
+**Hooks are slow on first run?**
+- First run downloads all tools (1-2 minutes)
+- Subsequent commits are much faster (5-15 seconds)
+
+**I committed something bad before installing hooks?**
+- The GitHub Actions will still catch it in your PR
+
+---
+
 ### This PR will be blocked:
 
 ```python
